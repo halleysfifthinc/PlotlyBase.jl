@@ -8,6 +8,7 @@ using Dates
 using Logging
 using ColorSchemes
 using Parameters
+using PrecompileTools
 
 if !isdefined(Base, :get_extension)
     using Requires
@@ -163,5 +164,14 @@ function __init__()
     @require JSON3="0f8b85d8-7281-11e9-16c2-39a750bddbf1" include("../ext/JSON3Ext.jl")
 end
 end # @static
+
+@setup_workload begin
+    y = rand(5)
+    x = collect(1:5)
+    @compile_workload begin
+        p = Plot(scatter(;x, y))
+        JSON.lower(p)
+    end
+end
 
 end # module
