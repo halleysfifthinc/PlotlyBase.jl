@@ -2,7 +2,7 @@
 using Pkg.Artifacts
 using Downloads
 
-function generate_artifacts(ver="2.3.0", repo="https://github.com/sglyon/PlotlyBase.jl")
+function generate_artifacts(ver="2.31.1", repo="https://github.com/sglyon/PlotlyBase.jl")
     artifacts_toml = joinpath(dirname(@__DIR__), "Artifacts.toml")
 
     # if Artifacts.toml does not exist we also do not have to remove it

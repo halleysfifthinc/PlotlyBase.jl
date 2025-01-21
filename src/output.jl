@@ -12,7 +12,7 @@ const _MATHJAX_CONFIG = """
 if (window.MathJax) {MathJax.Hub.Config({SVG: {font: "STIX-Web"}});}
 </script>"""
 
-const PLOTLYJS_VERSION = "2.3.0"
+const PLOTLYJS_VERSION = "2.31.1"
 
 const CDN_URL = "https://cdn.plot.ly/plotly-$(PLOTLYJS_VERSION).min.js"
 
