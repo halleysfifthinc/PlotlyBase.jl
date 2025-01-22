@@ -31,9 +31,18 @@ mutable struct Layout{T <: AbstractDict{Symbol,Any}} <: AbstractLayout
     subplots::Subplots
 
     function Layout{T}(fields::T; kwargs...) where T
-        l = new{T}(merge(_layout_defaults(), fields), Subplots())
-        foreach(x -> setindex!(l, x[2], x[1]), kwargs)
-        l
+        # merge doesn't check if `fields` isempty
+        # manual checks avoid some unnecessary allocations
+        _fields = if isempty(fields)
+            _layout_defaults()
+        else
+            merge(_layout_defaults(), fields)
+        end
+        l = new{T}(_fields, Subplots())
+        if !isempty(kwargs) # const-prop's away for empty kwargs
+            foreach(x -> setindex!(l, x[2], x[1]), kwargs)
+        end
+        return l
     end
 end
 
