@@ -55,8 +55,9 @@ _available_templates() = [replace(x, ".json" => "") for x in readdir(_template_d
 function _load_template(name::String)
     # first try to look it up
     name = Symbol(replace(name, ".json" => ""))
-    if name in keys(templates) && !ismissing(templates.templates[name])
-        return templates.templates[name]
+    _templates = getfield(templates, :templates)
+    if name in keys(templates) && !ismissing(_templates[name])
+        return _templates[name]::Template
     end
 
     # otherwise try to load
@@ -70,12 +71,12 @@ function _load_template(name::String)
     end
 
     # if it does, load and process it
-    raw = _symbol_dict(open(JSON.parse, to_load))
-    layout = attr(;_symbol_dict(get(raw, :layout, Dict()))...)
+    raw = _symbol_dict(open(JSON.parse, to_load))::Dict{Symbol,Any}
+    layout = attr(;_symbol_dict(get(raw, :layout, Dict{Symbol,Any}()))...)
     data = Dict{Symbol,Vector{_ATTR}}()
 
     # data will be object of arrays. Each array has trace attributes
-    for (trace_type, trace_val_array) in get(raw, :data, Dict())
+    for (trace_type, trace_val_array) in get(raw, :data, Dict{Symbol,Any}())::Dict{Symbol,Any}
         want = _ATTR[]
         for trace_data in trace_val_array
             push!(want, attr(;_symbol_dict(trace_data)...))
@@ -124,13 +125,12 @@ function Base.setindex!(tc::_TemplatesConfig, val::Template, k::Union{Symbol,Str
 end
 function Base.getindex(tc::_TemplatesConfig, k::Symbol)
     if haskey(tc.templates, k) && !ismissing(tc.templates[k])
-        return tc.templates[k]
+        return tc.templates[k]::Template
     end
     return _load_template(String(k))
 end
 function Base.getindex(tc::_TemplatesConfig, k::String)
-    parts = strip.(split(k, "+"))
-    reduce(merge, getindex.(Ref(tc), Symbol.(parts)))
+    mapreduce(x -> tc[Symbol(strip(x))], merge, split(k, "+"))
 end
 
 Base.keys(tc::_TemplatesConfig) = keys(tc.templates)
