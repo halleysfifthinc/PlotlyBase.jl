@@ -130,7 +130,11 @@ function Base.getindex(tc::_TemplatesConfig, k::Symbol)
     return _load_template(String(k))
 end
 function Base.getindex(tc::_TemplatesConfig, k::String)
-    mapreduce(x -> tc[Symbol(strip(x))], merge, split(k, "+"))
+    if '+' in k
+        return mapreduce(x -> tc[Symbol(strip(x))], merge, split(k, "+"))
+    else
+        return tc[Symbol(strip(k))]
+    end
 end
 
 Base.keys(tc::_TemplatesConfig) = keys(tc.templates)
