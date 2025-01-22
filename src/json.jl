@@ -5,9 +5,9 @@ JSON.lower(a::HasFields) = a.fields
 JSON.lower(c::Cycler) = c.vals
 _json_lower(x) = JSON.lower(x)
 _json_lower(x::Union{Bool,String,Number,Nothing,Missing}) = x
-_json_lower(x::Union{Tuple,AbstractArray}) = _json_lower.(x)
-_json_lower(d::Dict) = Dict{Any,Any}(k => _json_lower(v) for (k, v) in pairs(d))
-_json_lower(a::HasFields) = Dict{Any,Any}(k => _json_lower(v) for (k, v) in pairs(a.fields))
+_json_lower(x::Union{Tuple,AbstractArray}) = [ _json_lower(xi) for xi in x ]
+_json_lower(d::Dict) = Dict{Symbol,Any}((Symbol(k), _json_lower(v)) for (k, v) in pairs(d))
+_json_lower(a::HasFields) = Dict{Symbol,Any}((Symbol(k), _json_lower(v)) for (k, v) in pairs(a.fields))
 _json_lower(c::Cycler) = c.vals
 function _json_lower(c::ColorScheme)::Vector{Tuple{Float64,String}}
     N = length(c.colors)
@@ -44,7 +44,7 @@ function _maybe_set_attr!(p::Plot, k::Symbol, v::Cycler)
 end
 
 function JSON.lower(p::Plot)
-    out = Dict(
+    out = Dict{Symbol,Any}(
         :data => _json_lower(p.data),
         :layout => _json_lower(p.layout),
         :frames => _json_lower(p.frames),
